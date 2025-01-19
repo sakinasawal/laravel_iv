@@ -23,7 +23,7 @@
         </tbody>
     </table>
 <br>
-<a href="{{ url('/members/topPurchase') }}">click sini untuk jawapan no 2</a>
+<a href="{{ url('/members/topPurchase') }}">Top 10 member make the most purchase</a>
 <br>
 </body>
 </html>

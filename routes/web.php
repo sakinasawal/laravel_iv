@@ -12,4 +12,3 @@ Route::get('/members/filter', [MemberController::class, 'filterByDate']);
 Route::get('/members/topPurchase', [MemberController::class, 'topMembersByPurchase']);
 Route::get('/members/referral', [MemberController::class, 'getReferralCounts']);
 Route::get('/members/purchaseReferral', [MemberController::class, 'getTotalPurchaseWithReferral']);
-Route::get('/members/familyTree', [MemberController::class, 'showFamilyTree']);

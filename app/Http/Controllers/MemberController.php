@@ -36,7 +36,7 @@ class MemberController extends Controller
             ->select('tblMembers.MemberID', 'tblMembers.Name', DB::raw('SUM(tblPurchases.Amount) as total_purchase'))
             ->groupBy('tblMembers.MemberID', 'tblMembers.Name')
             ->orderByDesc('total_purchase')
-            ->limit(1)
+            ->limit(10)
             ->get();
 
         return view('members/topPurchase', compact('topMembers'));
@@ -55,44 +55,45 @@ class MemberController extends Controller
 
     public function getTotalPurchaseWithReferral()
     {
-        // Get the total purchase for each member (personal + referral)
+        $personalPurchases = DB::table('tblPurchases')
+        ->select('MemberID', DB::raw('SUM(Amount) as total_personal_purchase'))
+        ->groupBy('MemberID');
+
+        $referralPurchases = DB::table('tblPurchases')
+        ->join('tblMembers', 'tblPurchases.MemberID', '=', 'tblMembers.MemberID') // To get ParentID
+        ->select('tblMembers.ParentID', DB::raw('SUM(tblPurchases.Amount) as total_referral_purchase'))
+        ->groupBy('tblMembers.ParentID');
+
         $totalPurchases = DB::table('tblMembers')
-             ->leftJoin('tblPurchases as personal', 'tblMembers.MemberID', '=', 'personal.MemberID')  // Personal purchases
-             ->leftJoin('tblMembers as referral_member', 'tblMembers.MemberID', '=', 'referral_member.ParentID')  // To get ParentID for referral
-             ->leftJoin('tblPurchases as referral_purchase', 'referral_member.MemberID', '=', 'referral_purchase.MemberID') // Referred purchases
-             ->select(
-                'tblMembers.MemberID',
-                'tblMembers.Name',
-                'tblMembers.TelM', 
-                DB::raw('SUM(CASE WHEN personal.MemberID IS NOT NULL THEN personal.Amount ELSE 0 END) as total_personal_purchase'),
-                DB::raw('SUM(CASE WHEN referral_purchase.MemberID IS NOT NULL THEN referral_purchase.Amount ELSE 0 END) as total_referral_purchase'),
-                DB::raw('SUM(CASE WHEN personal.MemberID IS NOT NULL THEN personal.Amount ELSE 0 END) + SUM(CASE WHEN referral_purchase.MemberID IS NOT NULL THEN referral_purchase.Amount ELSE 0 END) as total_group_purchase')
-            )
-            ->groupBy('tblMembers.MemberID', 'tblMembers.Name', 'tblMembers.TelM')  // Group by member information
-            ->get();
+        ->leftJoinSub($personalPurchases, 'personal', 'tblMembers.MemberID', '=', 'personal.MemberID')
+        ->leftJoinSub($referralPurchases, 'referral', 'tblMembers.MemberID', '=', 'referral.ParentID')
+        ->select(
+            'tblMembers.MemberID',
+            'tblMembers.Name',
+            'tblMembers.TelM',
+            DB::raw('IFNULL(personal.total_personal_purchase, 0) as total_personal_purchase'),
+            DB::raw('IFNULL(referral.total_referral_purchase, 0) as total_referral_purchase'),
+            DB::raw('IFNULL(personal.total_personal_purchase, 0) + IFNULL(referral.total_referral_purchase, 0) as total_group_purchase')
+        )
+        ->get();
+
+        // Get the total purchase for each member (personal + referral)
+        // $totalPurchases = DB::table('tblMembers')
+        //      ->leftJoin('tblPurchases as personal', 'tblMembers.MemberID', '=', 'personal.MemberID')  // Personal purchases
+        //      ->leftJoin('tblMembers as referrals', 'tblMembers.MemberID', '=', 'referrals.ParentID')  // Referral members
+        //      ->leftJoin('tblPurchases as referral_purchase', 'referrals.MemberID', '=', 'referral_purchase.MemberID') // Referral purchases
+        //      ->select(
+        //         'tblMembers.MemberID',
+        //         'tblMembers.Name',
+        //         'tblMembers.TelM', 
+        //         DB::raw('SUM(personal.Amount) as total_personal_purchase'),
+        //         DB::raw('SUM(referral_purchase.Amount) as total_referral_purchase'),
+        //         DB::raw('SUM(personal.Amount) + SUM(referral_purchase.Amount) as total_group_purchase')
+        //     )
+        //     ->groupBy('tblMembers.MemberID', 'tblMembers.Name', 'tblMembers.TelM')
+        //     ->get();
         
         return view('members/purchaseReferral', compact('totalPurchases'));
     }
 
-    public function showFamilyTree()
-    {
-    //     // Get the member and their referred members (children)
-    //     $member = Member::with('referredMembers.purchases', 'purchases')
-    //         ->findOrFail($memberId);  // You can pass member ID to dynamically get the data
-
-    //     // Calculate the personal sales (individual purchases)
-    //     $personalSales = $member->purchases->sum('Amount');
-
-    //     // Calculate the group sales (personal + referred members' purchases)
-    //     $groupSales = $personalSales;
-
-    //     // Sum the purchases for referred members
-    //     foreach ($member->referredMembers as $referredMember) {
-    //         $groupSales += $referredMember->purchases->sum('Amount');
-    //     }
-
-    //     // Pass data to view
-    //     return view('members/familyTree', compact('member', 'personalSales', 'groupSales'));
-    }
-    
 }

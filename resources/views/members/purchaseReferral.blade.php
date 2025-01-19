@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <h1>Members' Personal and Referral Purchases</h1>
+    <h1>Total Personal and Referral Purchases</h1>
     <table border="1">
         <thead>
             <tr>
@@ -32,7 +32,5 @@
             @endforeach
         </tbody>
     </table>
-    <br>
-    <a href="{{ url('/members/familyTree') }}">sini no 5 tapi saya tappaham</a>
 </body>
 </html>

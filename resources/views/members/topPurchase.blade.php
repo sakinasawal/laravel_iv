@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-<h1>Top 2 Members Who Made the Most Purchases in March 2024</h1>
+<h1>Top 10 Members Who Made the Most Purchases in March 2024</h1>
     <table border="1">
         <thead>
             <tr>
@@ -21,6 +21,6 @@
         </tbody>
     </table>
     <br>
-    <a href="{{ url('/members/referral') }}">helluu click sini jawapan no 3</a>
+    <a href="{{ url('/members/referral') }}">The number of member refer for each member</a>
 </body>
 </html>

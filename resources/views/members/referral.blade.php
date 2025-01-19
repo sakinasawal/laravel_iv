@@ -27,6 +27,6 @@
         </tbody>
     </table>
     <br>
-    <a href="{{ url('/members/purchaseReferral') }}">sini sini nombor 4</a>
+    <a href="{{ url('/members/purchaseReferral') }}">Total purchase</a>
 </body>
 </html>
