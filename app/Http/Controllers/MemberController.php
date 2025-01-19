@@ -76,22 +76,6 @@ class MemberController extends Controller
             DB::raw('IFNULL(personal.total_personal_purchase, 0) + IFNULL(referral.total_referral_purchase, 0) as total_group_purchase')
         )
         ->get();
-
-        // Get the total purchase for each member (personal + referral)
-        // $totalPurchases = DB::table('tblMembers')
-        //      ->leftJoin('tblPurchases as personal', 'tblMembers.MemberID', '=', 'personal.MemberID')  // Personal purchases
-        //      ->leftJoin('tblMembers as referrals', 'tblMembers.MemberID', '=', 'referrals.ParentID')  // Referral members
-        //      ->leftJoin('tblPurchases as referral_purchase', 'referrals.MemberID', '=', 'referral_purchase.MemberID') // Referral purchases
-        //      ->select(
-        //         'tblMembers.MemberID',
-        //         'tblMembers.Name',
-        //         'tblMembers.TelM', 
-        //         DB::raw('SUM(personal.Amount) as total_personal_purchase'),
-        //         DB::raw('SUM(referral_purchase.Amount) as total_referral_purchase'),
-        //         DB::raw('SUM(personal.Amount) + SUM(referral_purchase.Amount) as total_group_purchase')
-        //     )
-        //     ->groupBy('tblMembers.MemberID', 'tblMembers.Name', 'tblMembers.TelM')
-        //     ->get();
         
         return view('members/purchaseReferral', compact('totalPurchases'));
     }
